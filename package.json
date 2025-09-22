@@ -13,7 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-  "type": "git",
+    "type": "git",
     "url": "git+https://github.com/mfinelli/cloudflare-pages-cleanup.git"
   },
   "keywords": [
@@ -25,6 +25,7 @@
     "url": "https://github.com/mfinelli/cloudflare-pages-cleanup/issues"
   },
   "homepage": "https://github.com/mfinelli/cloudflare-pages-cleanup#readme",
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }
