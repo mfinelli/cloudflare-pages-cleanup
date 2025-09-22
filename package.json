@@ -1,0 +1,30 @@
+{
+  "name": "cloudflare-pages-cleanup",
+  "version": "0.1.0",
+  "description": "GitHub Action to cleanup Cloudflare Pages deployments",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "all": "pnpm run lint && pnpm run test && pnpm run build && pnpm run package",
+    "build": "tsc",
+    "fix": "prettier --write **/*.{ts,json,md}",
+    "lint": "prettier --check **/*.{ts,json,md}",
+    "package": "ncc build --license licenses.txt",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+  "type": "git",
+    "url": "git+https://github.com/mfinelli/cloudflare-pages-cleanup.git"
+  },
+  "keywords": [
+    "cloudflare"
+  ],
+  "author": "Mario Finelli",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mfinelli/cloudflare-pages-cleanup/issues"
+  },
+  "homepage": "https://github.com/mfinelli/cloudflare-pages-cleanup#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}
