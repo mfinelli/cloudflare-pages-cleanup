@@ -1,0 +1,58 @@
+---
+name: Cloudflare Pages Deployments Cleanup
+description: "Deletes old Cloudflare Pages deployments with min/max retention,
+  age threshold, and dry-run reporting."
+author: Mario Finelli
+inputs:
+  cloudflare_account_id:
+    description: Cloudflare account ID
+    required: true
+  cloudflare_api_token:
+    description: Cloudflare API token with Pages Read+Edit permissions
+    required: true
+  project:
+    description: Cloudflare Pages project name
+    required: true
+  environment:
+    description: Which environments to clean (all|production|preview)
+    default: all
+    required: false
+  min-to-keep:
+    description: Minimum number of deployments to always retain per environment
+    default: 5
+    required: false
+  max-to-keep:
+    description: "Maximum number of recent deployments to retain per
+      environment (≥ minToKeep)"
+    default: 50
+    required: false
+  only-older-than-days:
+    description: Only delete deployments older than this many days
+    required: false
+  dry_run:
+    description: If true, do not delete; only report
+    default: false
+    required: false
+  max-deletes-per-run:
+    description: Safety cap on number of deletions per run
+    default: 50
+    required: false
+  fail_on_error:
+    description: If true, any deletion failure will fail the job
+    default: true
+    required: false
+outputs:
+  consideredCount:
+    description: Total deployments considered (after protections)
+  deletedCount:
+    description: Number of deployments deleted this run
+  keptCount:
+    description: Number of deployments kept this run
+  deletedIds:
+    description: CSV of deleted deployment IDs
+runs:
+  using: node24
+  main: dist/index.js
+branding:
+  icon: trash-2
+  color: orange
