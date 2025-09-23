@@ -25,7 +25,14 @@
     "url": "https://github.com/mfinelli/cloudflare-pages-cleanup/issues"
   },
   "homepage": "https://github.com/mfinelli/cloudflare-pages-cleanup#readme",
+  "dependencies": {
+    "@actions/artifact": "^2.3.2",
+    "@actions/core": "^1.11.1",
+    "cloudflare": "^5.1.0"
+  },
   "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@vercel/ncc": "^0.38.4",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2"
   }
