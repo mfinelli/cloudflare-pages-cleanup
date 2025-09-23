@@ -6,7 +6,8 @@
     "rootDir": "src",
     "sourceMap": true,
     "strict": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "esModuleInterop": true
   },
   "exclude": ["lib", "node_modules", "**/*.test.ts"]
 }
