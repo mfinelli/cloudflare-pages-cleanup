@@ -19,14 +19,19 @@ import { selectForEnvironment } from "./select";
 import { detectActiveProduction, hasAliases } from "./cloudflare";
 import type { Deployment } from "./types";
 
-function dep(id: string, opts: {
-  env: "production" | "preview",
-  daysAgo: number,
-  aliases?: string[],
-  branch?: string
-}) : Deployment {
+function dep(
+  id: string,
+  opts: {
+    env: "production" | "preview";
+    daysAgo: number;
+    aliases?: string[];
+    branch?: string;
+  },
+): Deployment {
   const { env, daysAgo, aliases = [], branch } = opts;
-  const created_on = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
+  const created_on = new Date(
+    Date.now() - daysAgo * 24 * 60 * 60 * 1000,
+  ).toISOString();
   return {
     id,
     created_on,
@@ -61,8 +66,10 @@ describe("selectForEnvironment – production basics", () => {
     });
 
     // Top 5 kept (including active d0), bottom 3 deleted
-    expect(new Set(bucket.keptIds)).toEqual(new Set(["d0","d1","d2","d3","d4"]));
-    expect(new Set(bucket.deletedIds)).toEqual(new Set(["d5","d6","d7"]));
+    expect(new Set(bucket.keptIds)).toEqual(
+      new Set(["d0", "d1", "d2", "d3", "d4"]),
+    );
+    expect(new Set(bucket.deletedIds)).toEqual(new Set(["d5", "d6", "d7"]));
     // Active prod should be marked protected
     expect(bucket.skippedProtectedIds).toContain("d0");
     // All 3 beyond cap were considered
@@ -74,8 +81,8 @@ describe("selectForEnvironment – production basics", () => {
     const deployments = [
       dep("d0", { env: "production", daysAgo: 0 }),
       dep("d1", { env: "production", daysAgo: 1 }),
-      dep("d2", { env: "production", daysAgo: 5 }),  // newer than 10 → kept
-      dep("d3", { env: "production", daysAgo: 9 }),  // newer than 10 → kept
+      dep("d2", { env: "production", daysAgo: 5 }), // newer than 10 → kept
+      dep("d3", { env: "production", daysAgo: 9 }), // newer than 10 → kept
       dep("d4", { env: "production", daysAgo: 11 }), // older than 10 → delete
     ];
     const olderThanMs = Date.now() - 10 * 24 * 60 * 60 * 1000;
@@ -86,10 +93,10 @@ describe("selectForEnvironment – production basics", () => {
       activeProdId: "d0",
       minToKeep: 0,
       maxToKeep: 2,
-      olderThanMs
+      olderThanMs,
     });
 
-    expect(new Set(bucket.keptIds)).toEqual(new Set(["d0","d1","d2","d3"]));
+    expect(new Set(bucket.keptIds)).toEqual(new Set(["d0", "d1", "d2", "d3"]));
     expect(bucket.deletedIds).toEqual(["d4"]);
     expect(bucket.skippedProtectedIds).toContain("d0");
     // candidates considered: d2,d3,d4
@@ -99,7 +106,11 @@ describe("selectForEnvironment – production basics", () => {
   it("protects alias-attached deployments", () => {
     const deployments = [
       dep("d0", { env: "production", daysAgo: 0 }),
-      dep("d1", { env: "production", daysAgo: 1, aliases: ["staging.example.com"] }), // protected
+      dep("d1", {
+        env: "production",
+        daysAgo: 1,
+        aliases: ["staging.example.com"],
+      }), // protected
       dep("d2", { env: "production", daysAgo: 2 }),
       dep("d3", { env: "production", daysAgo: 30 }),
     ];
@@ -110,13 +121,13 @@ describe("selectForEnvironment – production basics", () => {
       activeProdId: "d0",
       minToKeep: 1,
       maxToKeep: 1,
-      olderThanMs: undefined
+      olderThanMs: undefined,
     });
 
     // keepCut=1 → only d0 auto-kept; d1 (alias) must be protected+kept
     expect(bucket.skippedProtectedIds).toContain("d1");
     expect(bucket.keptIds).toContain("d1");
-    expect(bucket.deletedIds).toEqual(expect.arrayContaining(["d2","d3"]));
+    expect(bucket.deletedIds).toEqual(expect.arrayContaining(["d2", "d3"]));
   });
 });
 
@@ -137,11 +148,13 @@ describe("selectForEnvironment – preview branch latest undeletable", () => {
       activeProdId: undefined,
       minToKeep: 0,
       maxToKeep: 0,
-      olderThanMs: undefined
+      olderThanMs: undefined,
     });
 
     // Newest per branch marked undeletable (kept)
-    expect(new Set(bucket.skippedUndeletableIds)).toEqual(new Set(["p1_new", "p2_new"]));
+    expect(new Set(bucket.skippedUndeletableIds)).toEqual(
+      new Set(["p1_new", "p2_new"]),
+    );
     expect(new Set(bucket.keptIds)).toEqual(new Set(["p1_new", "p2_new"]));
     // Older of feat1 can be deleted
     expect(bucket.deletedIds).toEqual(["p1_old"]);
@@ -155,14 +168,16 @@ describe("helpers", () => {
     const deployments = [
       dep("x-old", { env: "production", daysAgo: 7 }),
       dep("x-new", { env: "production", daysAgo: 1 }),
-      dep("p-prev", { env: "preview", daysAgo: 0 })
+      dep("p-prev", { env: "preview", daysAgo: 0 }),
     ];
     const id = detectActiveProduction(deployments);
     expect(id).toBe("x-new");
   });
 
   it("hasAliases returns true when aliases present", () => {
-    expect(hasAliases(dep("a", { env: "preview", daysAgo: 1, aliases: ["foo"] }))).toBe(true);
+    expect(
+      hasAliases(dep("a", { env: "preview", daysAgo: 1, aliases: ["foo"] })),
+    ).toBe(true);
     expect(hasAliases(dep("b", { env: "preview", daysAgo: 1 }))).toBe(false);
   });
 });

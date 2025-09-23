@@ -45,29 +45,29 @@ export function daysAgoUtc(days: number): number {
 
 export function getInputs(): Inputs {
   const accountId = core
-    .getInput("cloudflareAccountId", { required: true })
+    .getInput("cloudflare_account_id", { required: true })
     .trim();
   const apiToken = core
-    .getInput("cloudflareApiToken", { required: true })
+    .getInput("cloudflare_api_token", { required: true })
     .trim();
   const project = core.getInput("project", { required: true }).trim();
   const environment = (core.getInput("environment") || "all")
     .trim()
     .toLowerCase() as EnvSelector;
 
-  const minToKeep = parseIntStrict(core.getInput("minToKeep"), 5);
-  let maxToKeep = parseIntStrict(core.getInput("maxToKeep"), 50);
-  const olderThanDaysStr = core.getInput("olderThanDays");
+  const minToKeep = parseIntStrict(core.getInput("min-to-keep"), 5);
+  let maxToKeep = parseIntStrict(core.getInput("max-to-keep"), 50);
+  const olderThanDaysStr = core.getInput("only-older-than-days");
   const olderThanDays = olderThanDaysStr
     ? parseIntStrict(olderThanDaysStr, 0)
     : undefined;
 
-  const dryRun = parseBool(core.getInput("dryRun"), true);
+  const dryRun = parseBool(core.getInput("dry_run"), true);
   const maxDeletesPerRun = parseIntStrict(
-    core.getInput("maxDeletesPerRun"),
+    core.getInput("max-deletes-per-run"),
     50,
   );
-  const failOnError = parseBool(core.getInput("failOnError"), true);
+  const failOnError = parseBool(core.getInput("fail_on_error"), true);
 
   if (minToKeep < 0 || maxToKeep < 0 || maxDeletesPerRun < 0) {
     throw new Error("minToKeep, maxToKeep, maxDeletesPerRun must be ≥ 0");

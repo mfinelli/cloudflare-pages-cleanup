@@ -1,7 +1,8 @@
 ---
 name: Cloudflare Pages Deployments Cleanup
-description: "Deletes old Cloudflare Pages deployments with min/max retention,
-  age threshold, and dry-run reporting."
+description:
+  "Deletes old Cloudflare Pages deployments with min/max retention, age
+  threshold, and dry-run reporting."
 author: Mario Finelli
 inputs:
   cloudflare_account_id:
@@ -22,8 +23,9 @@ inputs:
     default: 5
     required: false
   max-to-keep:
-    description: "Maximum number of recent deployments to retain per
-      environment (≥ minToKeep)"
+    description:
+      "Maximum number of recent deployments to retain per environment (≥
+      minToKeep)"
     default: 50
     required: false
   only-older-than-days:
