@@ -73,7 +73,7 @@ export function initReport(base: Omit<Report, "summary" | "errors">): Report {
  *  - Increments `report.summary` counters using the bucket sizes and the
  *    provided `considered` count (i.e., totals accumulate across envs).
  *
- * ⚠️ Note: This function **mutates** `report` and **adds** to the summary.
+ * Note: This function **mutates** `report` and **adds** to the summary.
  * Call it **once per environment**. Re-attaching the same `env` a second time
  * will overwrite `report[env]` but also inflate the summary counters.
  *

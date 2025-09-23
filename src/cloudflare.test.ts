@@ -16,14 +16,14 @@
 
 import { describe, it, expect } from "vitest";
 import {
-  hasAliases,
-  readSourceConfigProdBranch,
-  isRecord,
-  getStr,
   getEnv,
+  getStr,
   getStrArray,
+  hasAliases,
+  isRecord,
   readBranch,
   readLatestStageStatus,
+  readSourceConfigProdBranch,
 } from "./cloudflare";
 import type { Deployment } from "./types";
 
@@ -54,6 +54,7 @@ describe("isRecord", () => {
     class MyClass {
       x = 1;
     }
+
     expect(isRecord(new MyClass())).toBe(true);
   });
 });
@@ -76,6 +77,7 @@ describe("getStr", () => {
       z: null,
       u: undefined,
     };
+
     expect(getStr(o, "n")).toBeUndefined();
     expect(getStr(o, "b")).toBeUndefined();
     expect(getStr(o, "z")).toBeUndefined();
@@ -89,6 +91,7 @@ describe("getStr", () => {
       fn: () => {},
       date: new Date(),
     };
+
     expect(getStr(o, "obj")).toBeUndefined();
     expect(getStr(o, "arr")).toBeUndefined();
     expect(getStr(o, "fn")).toBeUndefined();
@@ -138,6 +141,7 @@ describe("getStrArray", () => {
       { a: ["x", []] },
       { a: ["x", Symbol("s")] },
     ];
+
     for (const obj of cases) {
       expect(getStrArray(obj, "a")).toBeUndefined();
     }
@@ -153,6 +157,7 @@ describe("getStrArray", () => {
       d: new Date(),
       u8: new Uint8Array([1, 2, 3]),
     };
+
     expect(getStrArray(o, "s")).toBeUndefined();
     expect(getStrArray(o, "n")).toBeUndefined();
     expect(getStrArray(o, "b")).toBeUndefined();
@@ -201,6 +206,7 @@ describe("getEnv", () => {
     expect(getEnv({ env: 1 }, "env")).toBeUndefined();
     expect(getEnv({ env: {} }, "env")).toBeUndefined();
     expect(getEnv({ env: [] }, "env")).toBeUndefined();
+
     // String wrapper object should be rejected
     const boxed = Object("production") as unknown; // typeof === "object"
     expect(getEnv({ env: boxed }, "env")).toBeUndefined();
@@ -250,6 +256,7 @@ describe("readBranch", () => {
     expect(
       readBranch({ metadata: { branch: true as unknown as string } }),
     ).toBeUndefined();
+
     // wrapper string object should be rejected
     const boxed = Object("feat/wrapped") as unknown;
     expect(

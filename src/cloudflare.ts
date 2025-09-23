@@ -32,7 +32,7 @@ import { Deployment, Environment } from "./types";
  *   strings, booleans, etc.
  *
  * Notes:
- * - This **does not** validate any specific shape — it only tells you the value
+ * - This **does not** validate any specific shape - it only tells you the value
  *   is object-like and key-addressable. You should still check the presence and
  *   types of expected properties.
  */
@@ -214,7 +214,7 @@ let cf: Cloudflare | null = null;
  * - Lazily constructs the client on first call using the provided `apiToken`.
  * - Subsequent calls return the same instance and **ignore different tokens**.
  * - Uses Node 20’s built-in `fetch` via `cloudflare/shims/web`.
- * - Sets conservative defaults (`maxRetries`, `timeout`) that you can tune here.
+ * - Sets conservative defaults (`maxRetries`, `timeout`)
  *
  * Notes:
  * - Intended for a single account/token per action run. If you need multiple
@@ -239,7 +239,6 @@ function getClient(apiToken: string): Cloudflare {
   if (!cf) {
     cf = new Cloudflare({
       apiToken,
-      // SDK already retries a bit; you can tune if desired:
       maxRetries: 2,
       timeout: 60_000,
     });
