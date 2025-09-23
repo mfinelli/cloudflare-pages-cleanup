@@ -18,6 +18,49 @@ import "cloudflare/shims/web";
 import Cloudflare from "cloudflare";
 import { Deployment, Environment } from "./types";
 
+// --- helpers (top of file or near the function) ---
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null;
+}
+function getStr(o: Record<string, unknown>, k: string): string | undefined {
+  return typeof o[k] === "string" ? (o[k] as string) : undefined;
+}
+function getStrArray(
+  o: Record<string, unknown>,
+  k: string,
+): string[] | undefined {
+  const v = o[k];
+  return Array.isArray(v) && v.every((x) => typeof x === "string")
+    ? (v as string[])
+    : undefined;
+}
+function getEnv(
+  o: Record<string, unknown>,
+  k: string,
+): "production" | "preview" | undefined {
+  const v = o[k];
+  return v === "production" || v === "preview" ? v : undefined;
+}
+function readBranch(o: Record<string, unknown>): string | undefined {
+  // o is expected to be d.deployment_trigger
+  const meta = isRecord(o.metadata)
+    ? (o.metadata as Record<string, unknown>)
+    : undefined;
+  return meta ? getStr(meta, "branch") : undefined;
+}
+function readLatestStageStatus(o: Record<string, unknown>): string | undefined {
+  return getStr(o, "status");
+}
+function readSourceConfigProdBranch(
+  o: Record<string, unknown>,
+): string | undefined {
+  const cfg = isRecord(o.config)
+    ? (o.config as Record<string, unknown>)
+    : undefined;
+  return cfg ? getStr(cfg, "production_branch") : undefined;
+}
+// --- end helpers ---
+
 // Singleton client (build once)
 let cf: Cloudflare | null = null;
 function getClient(apiToken: string): Cloudflare {
@@ -51,17 +94,69 @@ export async function listDeployments(params: {
     account_id: accountId,
     env,
   })) {
-    // Map to our local Deployment shape (fields align closely)
+    // Start from unknown and narrow
+    const rec = d as unknown as Record<string, unknown>;
+
+    const id = getStr(rec, "id");
+    const created_on = getStr(rec, "created_on");
+    const environment = getEnv(rec, "environment");
+    if (!id || !created_on || !environment) {
+      // If the SDK changes shape unexpectedly, fail fast with a clear error
+      throw new Error(
+        "Cloudflare deployment object missing id/created_on/environment",
+      );
+    }
+
+    const short_id = getStr(rec, "short_id");
+    const url = getStr(rec, "url");
+    const aliases = getStrArray(rec, "aliases");
+
+    // Optional nested objects (safely narrowed)
+    const deployment_trigger = isRecord(rec["deployment_trigger"])
+      ? {
+          metadata: {
+            branch: readBranch(
+              rec["deployment_trigger"] as Record<string, unknown>,
+            ),
+            // commit_hash/commit_message are optional; add if you need them:
+            // commit_hash: ...
+            // commit_message: ...
+          },
+        }
+      : undefined;
+
+    const latest_stage = isRecord(rec["latest_stage"])
+      ? {
+          status: readLatestStageStatus(
+            rec["latest_stage"] as Record<string, unknown>,
+          ),
+        }
+      : undefined;
+
+    const source = isRecord(rec["source"])
+      ? {
+          config: isRecord((rec["source"] as Record<string, unknown>)["config"])
+            ? {
+                production_branch: readSourceConfigProdBranch(
+                  (rec["source"] as Record<string, unknown>)[
+                    "config"
+                  ] as Record<string, unknown>,
+                ),
+              }
+            : undefined,
+        }
+      : undefined;
+
     result.push({
-      id: (d as any).id,
-      short_id: (d as any).short_id,
-      created_on: (d as any).created_on,
-      environment: (d as any).environment,
-      url: (d as any).url,
-      aliases: (d as any).aliases,
-      deployment_trigger: (d as any).deployment_trigger,
-      latest_stage: (d as any).latest_stage,
-      source: (d as any).source,
+      id,
+      short_id,
+      created_on,
+      environment,
+      url,
+      aliases,
+      deployment_trigger,
+      latest_stage,
+      source,
     });
   }
   return result;

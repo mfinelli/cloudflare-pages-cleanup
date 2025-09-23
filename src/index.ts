@@ -30,7 +30,7 @@ import {
   writeAndUploadReport,
 } from "./report";
 import { writeStepSummary } from "./summary";
-import { Environment } from "./types";
+import { Environment, Deployment } from "./types";
 // Docs for endpoints/fields we rely on: list + delete deployments (aliases, created_on, env).
 // List: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/list/
 // Delete: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/delete/
@@ -60,7 +60,10 @@ async function run(): Promise<void> {
       : [inputs.environment];
 
   // Fetch once per env to let Cloudflare filter server-side
-  const all: Record<Environment, any[]> = { production: [], preview: [] };
+  const all: Record<Environment, Deployment[]> = {
+    production: [],
+    preview: [],
+  };
   for (const env of envs) {
     const list = await listDeployments({
       accountId: inputs.accountId,
@@ -129,9 +132,8 @@ async function run(): Promise<void> {
             deploymentId: id,
           });
           core.info(`[${env}] Deleted ${idx}/${toDelete.length}: ${id}`);
-        } catch (e: any) {
-          const message =
-            typeof e?.message === "string" ? e.message : String(e);
+        } catch (e: unknown) {
+          const message = e instanceof Error ? e.message : String(e);
           // Try to parse status number from message if present
           const status = Number((message.match(/\((\d{3})\)/) || [])[1]) || 0;
           addError(report, {

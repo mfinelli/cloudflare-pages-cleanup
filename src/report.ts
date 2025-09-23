@@ -82,7 +82,7 @@ export async function writeAndUploadReport(
     core.info(
       `Uploaded artifact '${artifactName}' (id: ${id}, bytes: ${size})`,
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     core.warning(`Failed to upload artifact '${artifactName}': ${msg}`);
   }

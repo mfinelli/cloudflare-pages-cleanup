@@ -12,6 +12,6 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   {
-    ignores: ["dist/**/*"],
+    ignores: ["dist/**/*", "lib/**/*"],
   },
 ]);
