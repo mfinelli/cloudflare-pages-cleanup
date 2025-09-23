@@ -17,6 +17,34 @@
 import * as core from "@actions/core";
 import { Report } from "./types";
 
+/**
+ * Renders a human-friendly **GitHub Step Summary** for a cleanup run.
+ *
+ * Produces a Markdown summary with:
+ *  - A header and run context (project, environment selector, dry-run flag)
+ *  - Aggregated totals (considered, deleted, kept, protected, undeletable, errors)
+ *  - Per-environment sections (`production`, `preview`) using collapsible
+ *    `<details>` blocks for:
+ *      - Deleted IDs
+ *      - Kept IDs (includes protected and within-retention)
+ *      - Protected IDs (active prod, alias-attached)
+ *      - Undeletable IDs (e.g., latest per branch that CF forbids deleting)
+ *  - An error table (env, deploymentId, HTTP status, message) when any errors occurred
+ *
+ * Notes:
+ *  - Uses `@actions/core.summary` to write to the file referenced by
+ *    `GITHUB_STEP_SUMMARY`. In a local/non-Actions context, this may be a no-op.
+ *  - This function is presentation-only; it does not mutate `report` and
+ *    does not throw unless the summary write fails.
+ *  - Long ID lists are collapsed by default to keep the summary compact.
+ *
+ * @param report - The finalized report object (typically the same one uploaded as `report.json`).
+ * @returns A promise that resolves once the summary has been written.
+ *
+ * @example
+ * const report = /* build or load report *\/
+ * await writeStepSummary(report);
+ */
 export async function writeStepSummary(report: Report): Promise<void> {
   const lines: string[] = [];
   lines.push(`### Cloudflare Pages Cleanup`);

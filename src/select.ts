@@ -17,11 +17,53 @@
 import { Deployment, Environment, SelectionBucket } from "./types";
 
 /**
- * Returns selection for a single environment (production or preview).
- * - Protects active production deployment (if env === 'production' and activeProdId provided)
- * - Protects any deployment with aliases
- * - Keeps newest minToKeep and up to maxToKeep (cap)
- * - Deletes only beyond maxToKeep and (if provided) older than threshold
+ * Selects deployments to **keep** or **delete** for a single environment.
+ *
+ * Pipeline (in order):
+ *  1) Filters `deployments` to the given `env` and sorts by `created_on` (newest → oldest).
+ *  2) **Protections**:
+ *     - If `env === "production"` and `activeProdId` is provided, that ID is always kept and
+ *       recorded in `skippedProtectedIds`.
+ *     - Any deployment with one or more `aliases` is always kept and recorded in
+ *       `skippedProtectedIds`.
+ *  3) **Retention window**:
+ *     - Computes `keepCut = max(minToKeep, maxToKeep)`.
+ *     - The newest `keepCut` items are **kept** unconditionally (this implicitly satisfies the
+ *       `minToKeep` floor and `maxToKeep` cap).
+ *  4) **Candidates** are items **beyond** the `keepCut` that are not protected:
+ *     - If `olderThanMs` is provided, only candidates **older than** that timestamp are eligible
+ *       for deletion. Newer-than-threshold candidates are **kept**.
+ *     - In the **preview** environment, the **newest deployment per branch** is considered
+ *       *undeletable* (per Cloudflare rules) and is **kept** and recorded in
+ *       `skippedUndeletableIds`.
+ *  5) All remaining eligible candidates are marked for **deletion**.
+ *
+ * Returns a `SelectionBucket` (IDs to keep/delete/skip) and `consideredCount`, which is the number
+ * of non-protected items examined **beyond** the retention window (i.e., candidates), regardless of
+ * whether they were later kept due to age threshold or preview branch-undeletable rules.
+ *
+ * Notes:
+ * - This function is **pure**; it does not mutate its inputs.
+ * - `created_on` is interpreted as an ISO-8601 timestamp (UTC). Age comparisons are numeric
+ *   epoch-ms comparisons against `olderThanMs`.
+ * - If branch metadata is missing on a preview deployment, it is treated as a normal candidate
+ *   (i.e., not marked undeletable).
+ * - The sort is newest → oldest; ties follow the engine’s stable sort (typical in modern Node).
+ * - The returned ID sets are disjoint by construction.
+ *
+ * @param params.env - Target environment: `"production"` or `"preview"`.
+ * @param params.deployments - Mixed/unsorted list; only the target env is considered.
+ * @param params.activeProdId - When provided and `env === "production"`, this ID is always kept.
+ * @param params.minToKeep - Floor of newest items to keep (per env).
+ * @param params.maxToKeep - Cap of newest items to keep (per env); `keepCut = max(min,max)`.
+ * @param params.olderThanMs - Optional cutoff timestamp; only older candidates may be deleted.
+ *
+ * @returns An object with:
+ *  - `bucket.keptIds`: kept this run (includes protected, within-retention, and below age threshold)
+ *  - `bucket.deletedIds`: selected for deletion
+ *  - `bucket.skippedProtectedIds`: protected by policy (active prod, aliases)
+ *  - `bucket.skippedUndeletableIds`: preview newest-per-branch
+ *  - `consideredCount`: number of non-protected candidates beyond `keepCut`
  */
 export function selectForEnvironment(params: {
   env: Environment;

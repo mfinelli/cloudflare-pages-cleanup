@@ -19,6 +19,7 @@ import { getInputs, daysAgoUtc } from "./utils";
 import {
   deleteDeployment,
   detectActiveProduction,
+  getCanonicalProductionDeploymentId,
   hasAliases,
   listDeployments,
 } from "./cloudflare";
@@ -35,6 +36,46 @@ import { Environment, Deployment } from "./types";
 // List: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/list/
 // Delete: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/delete/
 
+/**
+ * Orchestrates the Cloudflare Pages cleanup action end-to-end.
+ *
+ * Workflow:
+ *  1) Reads and validates inputs via {@link getInputs}.
+ *  2) Creates a fresh {@link Report} with {@link initReport} (records `runAt`, inputs, etc.).
+ *  3) Determines which environments to process (`production`, `preview`, or both).
+ *  4) Lists deployments per environment using the Cloudflare TS SDK
+ *     ({@link listDeployments}); detects the active production deployment via
+ *     {@link detectActiveProduction}.
+ *  5) Computes the optional age cutoff (`olderThanMs`) with {@link daysAgoUtc}.
+ *  6) For each environment:
+ *     - Runs {@link selectForEnvironment} to classify IDs to keep/delete/skip.
+ *     - Ensures alias-attached deployments are marked protected (via {@link hasAliases}).
+ *     - If **not** in dry-run, deletes up to `maxDeletesPerRun` candidates using
+ *       {@link deleteDeployment}; aggregates any errors with {@link addError}
+ *       (no early exit, so multiple failures are reported together).
+ *     - Merges results into the report with {@link attachBucket}.
+ *  7) Sets GitHub Action outputs (`consideredCount`, `deletedCount`, `keptCount`, `deletedIds`).
+ *  8) Always writes and uploads `report.json` as an artifact (unique name derived from
+ *     `GITHUB_RUN_ID`/`GITHUB_RUN_ATTEMPT`/`GITHUB_JOB`) via {@link writeAndUploadReport}.
+ *  9) Writes a human-readable step summary via {@link writeStepSummary}.
+ * 10) If any deletion errors occurred and `failOnError` is true, throws to fail the job.
+ *
+ * Side effects:
+ *  - Network calls to Cloudflare’s API (list/delete deployments).
+ *  - Writes `report.json` to the workspace and uploads it as an artifact.
+ *  - Writes a GitHub Step Summary.
+ *  - Sets Action outputs; may fail the job on policy.
+ *
+ * Notes:
+ *  - Dry-run mode performs all selection/reporting but **does not delete** anything.
+ *  - Artifact upload failures are logged as warnings; they do **not** fail the job here.
+ *  - Errors from deletion are aggregated and can fail the job depending on `failOnError`.
+ *  - Sensitive values (tokens) are never logged.
+ *
+ * @returns Promise that resolves when the run completes (or rejects to fail the job).
+ * @throws If inputs are invalid; if listing deployments fails; or (when `failOnError` is true)
+ *         if one or more deletions fail after retries.
+ */
 async function run(): Promise<void> {
   const inputs = getInputs();
 
@@ -75,9 +116,25 @@ async function run(): Promise<void> {
   }
 
   // Active production protection (computed from production list)
-  const activeProdId = envs.includes("production")
-    ? detectActiveProduction(all["production"])
-    : undefined;
+  let activeProdId: string | undefined = undefined;
+
+  if (envs.includes("production")) {
+    const canonical = await getCanonicalProductionDeploymentId({
+      accountId: inputs.accountId,
+      apiToken: inputs.apiToken,
+      project: inputs.project,
+    });
+
+    activeProdId = canonical ?? detectActiveProduction(all["production"]);
+
+    if (!canonical) {
+      core.info(
+        `Using heuristic active production ID: ${activeProdId ?? "unknown"} (canonical_deployment not available)`,
+      );
+    } else {
+      core.info(`Active production deployment (canonical): ${canonical}`);
+    }
+  }
 
   const olderThanMs =
     inputs.olderThanDays !== undefined

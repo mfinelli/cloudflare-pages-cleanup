@@ -19,6 +19,37 @@ import * as core from "@actions/core";
 import { DefaultArtifactClient } from "@actions/artifact";
 import { Report, SelectionBucket } from "./types";
 
+/**
+ * Initializes a fresh {@link Report} object from required base fields.
+ *
+ * Sets an empty `errors` array and zeroed `summary` counters. Use
+ * {@link attachBucket} to merge per-environment results and
+ * {@link addError} to record failures. This function is pure (it does not
+ * mutate `base`) and does not write files or upload artifacts.
+ *
+ * @param base - The non-derivable report metadata (e.g., `project`, `accountId`,
+ *   `environment`, `dryRun`, `runAt`, and `inputs`). The `summary` and `errors`
+ *   properties are intentionally excluded and will be created here.
+ *
+ * @returns A fully initialized {@link Report} ready to be populated and then
+ *   passed to `writeAndUploadReport` and `writeStepSummary`.
+ *
+ * @example
+ * const report = initReport({
+ *   project: inputs.project,
+ *   accountId: inputs.accountId,
+ *   environment: inputs.environment,
+ *   dryRun: inputs.dryRun,
+ *   runAt: new Date().toISOString(),
+ *   inputs: {
+ *     minToKeep: inputs.minToKeep,
+ *     maxToKeep: inputs.maxToKeep,
+ *     olderThanDays: inputs.olderThanDays,
+ *     maxDeletesPerRun: inputs.maxDeletesPerRun,
+ *     failOnError: inputs.failOnError
+ *   }
+ * });
+ */
 export function initReport(base: Omit<Report, "summary" | "errors">): Report {
   return {
     ...base,
@@ -34,6 +65,33 @@ export function initReport(base: Omit<Report, "summary" | "errors">): Report {
   };
 }
 
+/**
+ * Merges a per-environment selection result into the aggregate {@link Report}.
+ *
+ * Effects:
+ *  - Sets `report[env] = bucket` to store the environment-specific IDs.
+ *  - Increments `report.summary` counters using the bucket sizes and the
+ *    provided `considered` count (i.e., totals accumulate across envs).
+ *
+ * ⚠️ Note: This function **mutates** `report` and **adds** to the summary.
+ * Call it **once per environment**. Re-attaching the same `env` a second time
+ * will overwrite `report[env]` but also inflate the summary counters.
+ *
+ * @param report - The report object to update.
+ * @param env - The environment the bucket belongs to (`"production"` or `"preview"`).
+ * @param bucket - ID sets for kept/deleted/protected/undeletable items.
+ * @param considered - Number of candidates examined beyond the retention window
+ *   for this environment (used to increment `summary.considered`).
+ *
+ * @returns void
+ *
+ * @example
+ * const prod = selectForEnvironment(/* ... *\/);
+ * attachBucket(report, "production", prod.bucket, prod.consideredCount);
+ *
+ * const prev = selectForEnvironment(/* ... *\/);
+ * attachBucket(report, "preview", prev.bucket, prev.consideredCount);
+ */
 export function attachBucket(
   report: Report,
   env: "production" | "preview",
@@ -54,10 +112,32 @@ export function addError(report: Report, entry: Report["errors"][number]) {
 }
 
 /**
- * v2 artifact upload:
- * - Requires a unique artifact name per job/run
- * - Single-shot upload; cannot append to the same artifact name again
- * - We warn on failure but don't hard-fail here (the main flow decides based on failOnError)
+ * Writes the run report to `./report.json` and uploads it as a GitHub Actions
+ * artifact using **@actions/artifact v2**.
+ *
+ * Behavior:
+ * - Serializes `report` (pretty-printed) to `report.json` in the workspace.
+ * - Uploads a **single, immutable** artifact named `artifactName` via
+ *   `DefaultArtifactClient`. Artifact names **must be unique per job/run** and
+ *   cannot be appended to later (v2 constraint). Each job may create up to 10
+ *   artifacts.
+ * - On upload failure, logs a warning and **does not throw**. The caller
+ *   (main flow) decides whether the job should fail (e.g., based on
+ *   `failOnError` which applies to deletion errors).
+ *
+ * Notes:
+ * - You can later expose artifact options (e.g., `retentionDays`,
+ *   `compressionLevel`) via this function’s options if needed.
+ * - This function is I/O bound (writes a file and performs a network upload).
+ *
+ * @param report - The finalized {@link Report} to persist and upload.
+ * @param artifactName - A unique name for the artifact (include run/job IDs to
+ *   avoid v2 duplicate-name errors).
+ * @returns A promise that resolves when the artifact upload attempt completes.
+ *
+ * @example
+ * const name = `cloudflare-pages-cleanup-report-${runId}-${attempt}`;
+ * await writeAndUploadReport(report, name);
  */
 export async function writeAndUploadReport(
   report: Report,
@@ -68,11 +148,6 @@ export async function writeAndUploadReport(
 
   const client = new DefaultArtifactClient();
   try {
-    // const { id, size } = await client.uploadArtifact(artifactName, [path], {
-    //   // Optional knobs you can expose later:
-    //   // retentionDays: undefined,
-    //   // compressionLevel: 6,
-    // });
     const { id, size } = await client.uploadArtifact(
       artifactName,
       [path],
