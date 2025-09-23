@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "GitHub Action to cleanup Cloudflare Pages deployments",
   "private": true,
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "all": "pnpm run lint && pnpm run test && pnpm run build && pnpm run package",
     "build": "tsc",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/mfinelli/cloudflare-pages-cleanup#readme",
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
   }
 }
