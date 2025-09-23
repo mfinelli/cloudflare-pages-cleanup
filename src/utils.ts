@@ -17,8 +17,13 @@
 import * as core from "@actions/core";
 import { Inputs, EnvSelector } from "./types";
 
+export function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
 export function parseBool(s: string | undefined, dflt: boolean): boolean {
   if (s == null) return dflt;
+  if (typeof s !== "string") return dflt;
   const v = String(s).trim().toLowerCase();
   if (["true", "1", "yes", "y"].includes(v)) return true;
   if (["false", "0", "no", "n"].includes(v)) return false;
@@ -27,15 +32,13 @@ export function parseBool(s: string | undefined, dflt: boolean): boolean {
 
 export function parseIntStrict(s: string | undefined, dflt: number): number {
   if (s == null || s === "") return dflt;
-  const n = Number(s);
+  const t = s.trim();
+  if (t === "") return dflt;
+  const n = Number(t);
   if (!Number.isFinite(n) || !Number.isInteger(n)) {
     throw new Error(`Expected integer, got '${s}'`);
   }
   return n;
-}
-
-export function nowUtcIso(): string {
-  return new Date().toISOString();
 }
 
 export function daysAgoUtc(days: number): number {

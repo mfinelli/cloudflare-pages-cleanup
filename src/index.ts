@@ -15,7 +15,7 @@
  */
 
 import * as core from "@actions/core";
-import { getInputs, daysAgoUtc, nowUtcIso } from "./utils";
+import { getInputs, daysAgoUtc } from "./utils";
 import {
   deleteDeployment,
   detectActiveProduction,
@@ -43,7 +43,7 @@ async function run(): Promise<void> {
     accountId: inputs.accountId,
     environment: inputs.environment,
     dryRun: inputs.dryRun,
-    runAt: nowUtcIso(),
+    runAt: new Date().toISOString(),
     inputs: {
       minToKeep: inputs.minToKeep,
       maxToKeep: inputs.maxToKeep,
