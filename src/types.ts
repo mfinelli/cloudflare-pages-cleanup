@@ -34,7 +34,7 @@ export interface Inputs {
   environment: EnvSelector;
   /** Per-environment floor to always keep. @defaultValue 5 */
   minToKeep: number;
-  /** Per-environment cap of newest to retain (>= min). @defaultValue 50 */
+  /** Per-environment cap of newest to retain (>= min). @defaultValue 10 */
   maxToKeep: number;
   /** Only delete items older than this many days; unset = no age filter. */
   olderThanDays?: number;

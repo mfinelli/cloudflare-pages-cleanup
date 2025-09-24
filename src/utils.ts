@@ -168,7 +168,7 @@ export function daysAgoUtc(days: number): number {
  * Defaults (when inputs are omitted):
  *  - `environment`: `"all"`
  *  - `minToKeep`: `5`
- *  - `maxToKeep`: `50`
+ *  - `maxToKeep`: `10`
  *  - `olderThanDays`: `undefined` (no age filter)
  *  - `dryRun`: `true`
  *  - `maxDeletesPerRun`: `50`
@@ -198,7 +198,7 @@ export function getInputs(): Inputs {
     .toLowerCase() as EnvSelector;
 
   const minToKeep = parseIntStrict(core.getInput("min-to-keep"), 5);
-  let maxToKeep = parseIntStrict(core.getInput("max-to-keep"), 50);
+  let maxToKeep = parseIntStrict(core.getInput("max-to-keep"), 10);
   const olderThanDaysStr = core.getInput("only-older-than-days");
   const olderThanDays = olderThanDaysStr
     ? parseIntStrict(olderThanDaysStr, 0)

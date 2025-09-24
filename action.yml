@@ -26,7 +26,7 @@ inputs:
     description:
       "Maximum number of recent deployments to retain per environment (≥
       minToKeep)"
-    default: 50
+    default: 10
     required: false
   only-older-than-days:
     description: Only delete deployments older than this many days

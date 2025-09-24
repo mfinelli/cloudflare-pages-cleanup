@@ -74,7 +74,7 @@ describe("getInputs", () => {
     const got = getInputs();
     expect(got.environment).toBe("all");
     expect(got.minToKeep).toBe(5);
-    expect(got.maxToKeep).toBe(50);
+    expect(got.maxToKeep).toBe(10);
     expect(got.olderThanDays).toBeUndefined();
     expect(got.dryRun).toBe(true);
     expect(got.maxDeletesPerRun).toBe(50);
