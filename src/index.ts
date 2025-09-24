@@ -58,7 +58,7 @@ import { Deployment, Environment } from "./types";
  * 10) If any deletion errors occurred and `failOnError` is true, throws to fail the job.
  *
  * Side effects:
- *  - Network calls to Cloudflare’s API (list/delete deployments).
+ *  - Network calls to Cloudflare's API (list/delete deployments).
  *  - Writes `report.json` to the workspace and uploads it as an artifact.
  *  - Writes a GitHub Step Summary.
  *  - Sets Action outputs; may fail the job on policy.

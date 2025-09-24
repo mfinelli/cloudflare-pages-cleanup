@@ -158,7 +158,7 @@ export function addError(report: Report, entry: Report["errors"][number]) {
  *
  * Notes:
  * - You can later expose artifact options (e.g., `retentionDays`,
- *   `compressionLevel`) via this function’s options if needed.
+ *   `compressionLevel`) via this function's options if needed.
  * - This function is I/O bound (writes a file and performs a network upload).
  *
  * @param report - The finalized {@link Report} to persist and upload.

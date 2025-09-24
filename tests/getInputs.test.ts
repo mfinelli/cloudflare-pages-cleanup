@@ -137,7 +137,7 @@ describe("getInputs", () => {
       project: "proj",
       "only-older-than-days": "-1",
     });
-    expect(() => getInputs()).toThrow(/olderThanDays must be ≥ 0/);
+    expect(() => getInputs()).toThrow(/olderThanDays must be >= 0/);
   });
 
   it("rejects non-integer numeric strings via parseIntStrict", () => {

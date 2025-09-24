@@ -22,9 +22,9 @@ import { EnvSelector, Inputs } from "./types";
  *
  * Designed for use in `catch (err: unknown)` blocks to keep type safety.
  * - If `err` is an `Error`, returns its `.message` (which may be empty).
- * - Otherwise, returns `String(err)` (uses the value’s `toString()` if present).
+ * - Otherwise, returns `String(err)` (uses the value's `toString()` if present).
  *
- * Note: This does not include stack traces or error names; it’s intended for
+ * Note: This does not include stack traces or error names; it's intended for
  * concise logs and step summaries. Objects without a custom `toString()` will
  * yield `"[object Object]"`.
  *
@@ -212,10 +212,10 @@ export function getInputs(): Inputs {
   const failOnError = parseBool(core.getInput("fail_on_error"), true);
 
   if (minToKeep < 0 || maxToKeep < 0 || maxDeletesPerRun < 0) {
-    throw new Error("minToKeep, maxToKeep, maxDeletesPerRun must be ≥ 0");
+    throw new Error("minToKeep, maxToKeep, maxDeletesPerRun must be >= 0");
   }
   if (olderThanDays !== undefined && olderThanDays < 0) {
-    throw new Error("olderThanDays must be ≥ 0 if provided");
+    throw new Error("olderThanDays must be >= 0 if provided");
   }
   if (maxToKeep < minToKeep) {
     core.warning(

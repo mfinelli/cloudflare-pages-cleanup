@@ -71,7 +71,7 @@ describe("addError", () => {
   it("does not change unrelated summary fields", () => {
     const report = baseReport();
 
-    // Prime some other summary numbers to ensure addError doesn’t touch them
+    // Prime some other summary numbers to ensure addError doesn't touch them
     report.summary.considered = 10;
     report.summary.kept = 7;
     report.summary.deleted = 3;

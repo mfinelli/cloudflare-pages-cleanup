@@ -214,7 +214,7 @@ let cf: Cloudflare | null = null;
  * Behavior:
  * - Lazily constructs the client on first call using the provided `apiToken`.
  * - Subsequent calls return the same instance and **ignore different tokens**.
- * - Uses Node 20’s built-in `fetch` via `cloudflare/shims/web`.
+ * - Uses Node 20's built-in `fetch` via `cloudflare/shims/web`.
  * - Sets conservative defaults (`maxRetries`, `timeout`)
  *
  * Notes:
@@ -252,7 +252,7 @@ function getClient(apiToken: string): Cloudflare {
  * by environment, and maps each item to our local {@link Deployment} shape.
  *
  * Behavior:
- * - Uses the Cloudflare TypeScript SDK’s async iterator to pull **all pages**
+ * - Uses the Cloudflare TypeScript SDK's async iterator to pull **all pages**
  *   of results and aggregates them into an array.
  * - If `env` is provided (`"production"` or `"preview"`), the SDK performs a
  *   server-side filter; otherwise all environments are returned.
@@ -260,12 +260,12 @@ function getClient(apiToken: string): Cloudflare {
  *   fields we use (`id`, `created_on`, `environment`, `aliases`, etc.).
  *   If any item is missing **required** fields (`id`, `created_on`, `environment`),
  *   an error is thrown to fail fast.
- * - The returned array preserves the SDK’s iteration order (typically newest -> oldest,
+ * - The returned array preserves the SDK's iteration order (typically newest -> oldest,
  *   but not guaranteed). Callers should sort as needed.
  *
  * Notes:
  * - Relies on a singleton Cloudflare client from {@link getClient}, which uses
- *   Node 20’s built-in `fetch` (via `cloudflare/shims/web`) and the SDK’s
+ *   Node 20's built-in `fetch` (via `cloudflare/shims/web`) and the SDK’s
  *   built-in retry policy for certain 429/5xx responses.
  * - This function does **not** perform any deletion or selection logic; it is a
  *   read-only fetch used by higher-level orchestration.
@@ -386,7 +386,7 @@ export async function listDeployments(params: {
  * Behavior:
  * - Thin wrapper over
  *   `cf.pages.projects.deployments.delete(project, deploymentId, { account_id })`.
- * - Performs no additional retries beyond the SDK’s built-in policy; any SDK
+ * - Performs no additional retries beyond the SDK's built-in policy; any SDK
  *   error is allowed to propagate to the caller.
  * - Irreversible side effect: the deployment is permanently removed by
  *   Cloudflare if the request succeeds.

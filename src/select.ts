@@ -48,7 +48,7 @@ import { Deployment, Environment, SelectionBucket } from "./types";
  *   epoch-ms comparisons against `olderThanMs`.
  * - If branch metadata is missing on a preview deployment, it is treated as a normal candidate
  *   (i.e., not marked undeletable).
- * - The sort is newest -> oldest; ties follow the engine’s stable sort (typical in modern Node).
+ * - The sort is newest -> oldest; ties follow the engine's stable sort (typical in modern Node).
  * - The returned ID sets are disjoint by construction.
  *
  * @param params.env - Target environment: `"production"` or `"preview"`.
