@@ -15,9 +15,8 @@
  */
 
 import * as core from "@actions/core";
-import { getInputs, daysAgoUtc } from "./utils";
+import { daysAgoUtc, errorMessage, getInputs } from "./utils";
 import {
-  errorMessage,
   deleteDeployment,
   detectActiveProduction,
   getCanonicalProductionDeploymentId,
@@ -26,16 +25,13 @@ import {
 } from "./cloudflare";
 import { selectForEnvironment } from "./select";
 import {
-  initReport,
-  attachBucket,
   addError,
+  attachBucket,
+  initReport,
   writeAndUploadReport,
 } from "./report";
 import { writeStepSummary } from "./summary";
-import { Environment, Deployment } from "./types";
-// Docs for endpoints/fields we rely on: list + delete deployments (aliases, created_on, env).
-// List: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/list/
-// Delete: https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/delete/
+import { Deployment, Environment } from "./types";
 
 /**
  * Orchestrates the Cloudflare Pages cleanup action end-to-end.
@@ -145,7 +141,8 @@ async function run(): Promise<void> {
   for (const env of envs) {
     const deployments = all[env];
 
-    // Pre-filter to exclude alias-attached deployments from even being considered (still counted as kept/protected)
+    // Pre-filter to exclude alias-attached deployments from even being
+    // considered (still counted as kept/protected)
     const protectedAliasIds = new Set(
       deployments.filter(hasAliases).map((d) => d.id),
     );
@@ -201,7 +198,8 @@ async function run(): Promise<void> {
             environment: env,
           });
           if (inputs.failOnError) {
-            // still write artifacts/summary later; we won't early-exit so we can report more errors in one go
+            // still write artifacts/summary later; we won't early-exit so we
+            // can report more errors in one go
           }
         }
       }

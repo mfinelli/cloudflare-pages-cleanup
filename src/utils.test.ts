@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { errorMessage, daysAgoUtc, parseBool, parseIntStrict } from "./utils";
 
 describe("errorMessage", () => {
@@ -112,7 +112,7 @@ describe("parseBool", () => {
 
   it("returns default for unknown strings", () => {
     expect(parseBool("maybe", true)).toBe(true);
-    expect(parseBool("on", false)).toBe(false); // not recognized → default
+    expect(parseBool("on", false)).toBe(false); // not recognized -> default
   });
 
   it("handles newline/trim edge cases", () => {
@@ -124,7 +124,7 @@ describe("parseBool", () => {
   // Casts simulate JS callers passing unexpected types
   it("gracefully stringifies unexpected types and still applies defaults", () => {
     expect(parseBool(null as unknown as string, true)).toBe(true);
-    expect(parseBool(42 as unknown as string, false)).toBe(false); // "42" not recognized → default
+    expect(parseBool(42 as unknown as string, false)).toBe(false); // "42" not recognized -> default
     expect(parseBool(false as unknown as string, true)).toBe(true); // "false" only if actual string
   });
 });

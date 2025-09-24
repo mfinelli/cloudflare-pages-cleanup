@@ -15,7 +15,7 @@
  */
 
 import * as core from "@actions/core";
-import { Inputs, EnvSelector } from "./types";
+import { EnvSelector, Inputs } from "./types";
 
 /**
  * Returns a human-readable message for an arbitrary thrown value.
@@ -69,11 +69,11 @@ export function errorMessage(err: unknown): string {
  * @returns The parsed boolean or the provided default.
  *
  * @example
- * parseBool(undefined, true)          // → true
- * parseBool("  yes ", false)          // → true
- * parseBool("0", true)                // → false
- * parseBool("", false)                // → false (empty → default)
- * parseBool(false as unknown as string, true) // → true (non-string → default)
+ * parseBool(undefined, true)          // -> true
+ * parseBool("  yes ", false)          // -> true
+ * parseBool("0", true)                // -> false
+ * parseBool("", false)                // -> false (empty → default)
+ * parseBool(false as unknown as string, true) // -> true (non-string → default)
  */
 export function parseBool(s: string | undefined, dflt: boolean): boolean {
   if (s == null) return dflt;
@@ -104,12 +104,12 @@ export function parseBool(s: string | undefined, dflt: boolean): boolean {
  * @throws Error if `s` is provided but does not parse to a finite integer.
  *
  * @example
- * parseIntStrict(undefined, 5)   // → 5
- * parseIntStrict("   ", 7)       // → 7
- * parseIntStrict("42", 0)        // → 42
- * parseIntStrict("-7", 0)        // → -7
- * parseIntStrict("1e3", 0)       // → 1000
- * parseIntStrict("0x10", 0)      // → 16
+ * parseIntStrict(undefined, 5)   // -> 5
+ * parseIntStrict("   ", 7)       // -> 7
+ * parseIntStrict("42", 0)        // -> 42
+ * parseIntStrict("-7", 0)        // -> -7
+ * parseIntStrict("1e3", 0)       // -> 1000
+ * parseIntStrict("0x10", 0)      // -> 16
  * parseIntStrict("3.14", 0)      // throws: Expected integer, got '3.14'
  */
 export function parseIntStrict(s: string | undefined, dflt: number): number {

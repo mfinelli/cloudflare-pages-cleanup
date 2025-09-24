@@ -107,6 +107,36 @@ export function attachBucket(
   report.summary.skippedUndeletable += bucket.skippedUndeletableIds.length;
 }
 
+/**
+ * Appends a deletion error entry to the {@link Report} and updates the
+ * aggregated error count.
+ *
+ * Effects:
+ *  - Pushes the given error object onto `report.errors`.
+ *  - Sets `report.summary.errors` to the new total (i.e., `report.errors.length`).
+ *
+ * Notes:
+ *  - This function **mutates** `report`.
+ *  - Intended to be called in the deletion loop so multiple failures are
+ *    captured and reported together (the main flow decides whether to fail
+ *    the job based on `failOnError`).
+ *
+ * @param report - The report object to update.
+ * @param entry  - The error to record (deploymentId, status, message, environment).
+ * @returns void
+ *
+ * @example
+ * try {
+ *   await deleteDeployment({...});
+ * } catch (e) {
+ *   addError(report, {
+ *     deploymentId: id,
+ *     status: 403,
+ *     message: errorMessage(e),
+ *     environment: "preview"
+ *   });
+ * }
+ */
 export function addError(report: Report, entry: Report["errors"][number]) {
   report.errors.push(entry);
   report.summary.errors = report.errors.length;

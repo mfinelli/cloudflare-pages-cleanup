@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { selectForEnvironment } from "./select";
 import { detectActiveProduction, hasAliases } from "./cloudflare";
 import type { Deployment } from "./types";
@@ -81,9 +81,9 @@ describe("selectForEnvironment – production basics", () => {
     const deployments = [
       dep("d0", { env: "production", daysAgo: 0 }),
       dep("d1", { env: "production", daysAgo: 1 }),
-      dep("d2", { env: "production", daysAgo: 5 }), // newer than 10 → kept
-      dep("d3", { env: "production", daysAgo: 9 }), // newer than 10 → kept
-      dep("d4", { env: "production", daysAgo: 11 }), // older than 10 → delete
+      dep("d2", { env: "production", daysAgo: 5 }), // newer than 10 -> kept
+      dep("d3", { env: "production", daysAgo: 9 }), // newer than 10 -> kept
+      dep("d4", { env: "production", daysAgo: 11 }), // older than 10 -> delete
     ];
     const olderThanMs = Date.now() - 10 * 24 * 60 * 60 * 1000;
 
@@ -124,7 +124,7 @@ describe("selectForEnvironment – production basics", () => {
       olderThanMs: undefined,
     });
 
-    // keepCut=1 → only d0 auto-kept; d1 (alias) must be protected+kept
+    // keepCut=1 -> only d0 auto-kept; d1 (alias) must be protected+kept
     expect(bucket.skippedProtectedIds).toContain("d1");
     expect(bucket.keptIds).toContain("d1");
     expect(bucket.deletedIds).toEqual(expect.arrayContaining(["d2", "d3"]));
@@ -137,11 +137,11 @@ describe("selectForEnvironment – preview branch latest undeletable", () => {
       // feat1 newest and older
       dep("p1_new", { env: "preview", daysAgo: 2, branch: "feat1" }),
       dep("p1_old", { env: "preview", daysAgo: 20, branch: "feat1" }),
-      // feat2 only one → newest by definition
+      // feat2 only one -> newest by definition
       dep("p2_new", { env: "preview", daysAgo: 3, branch: "feat2" }),
     ];
 
-    // keepCut=0 → everything is a candidate unless protected/undeletable
+    // keepCut=0 -> everything is a candidate unless protected/undeletable
     const { bucket, consideredCount } = selectForEnvironment({
       env: "preview",
       deployments,

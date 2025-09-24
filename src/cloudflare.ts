@@ -260,7 +260,7 @@ function getClient(apiToken: string): Cloudflare {
  *   fields we use (`id`, `created_on`, `environment`, `aliases`, etc.).
  *   If any item is missing **required** fields (`id`, `created_on`, `environment`),
  *   an error is thrown to fail fast.
- * - The returned array preserves the SDK’s iteration order (typically newest → oldest,
+ * - The returned array preserves the SDK’s iteration order (typically newest -> oldest,
  *   but not guaranteed). Callers should sort as needed.
  *
  * Notes:
@@ -337,9 +337,6 @@ export async function listDeployments(params: {
             branch: readBranch(
               rec["deployment_trigger"] as Record<string, unknown>,
             ),
-            // commit_hash/commit_message are optional; add if you need them:
-            // commit_hash: ...
-            // commit_message: ...
           },
         }
       : undefined;
@@ -378,6 +375,7 @@ export async function listDeployments(params: {
       source,
     });
   }
+
   return result;
 }
 
@@ -489,7 +487,7 @@ export async function getCanonicalProductionDeploymentId(params: {
  *
  * Behavior:
  *  1) Filters `deployments` to `environment === "production"`.
- *  2) Sorts by `created_on` (newest → oldest).
+ *  2) Sorts by `created_on` (newest -> oldest).
  *  3) Prefers the **newest with `latest_stage.status === "success"`**.
  *     If none are successful, returns the **absolute newest** production ID.
  *
@@ -519,7 +517,7 @@ export async function getCanonicalProductionDeploymentId(params: {
  *   { id: "p-new-failed", created_on: "2024-12-02T00:00:00Z", environment: "production", latest_stage: { status: "failure" } },
  *   { id: "preview-1", created_on: "2024-12-03T00:00:00Z", environment: "preview" }
  * ]);
- * // → "p-old" (newest successful production; newer failed build is ignored)
+ * // -> "p-old" (newest successful production; newer failed build is ignored)
  */
 export function detectActiveProduction(
   deployments: Deployment[],
@@ -552,10 +550,10 @@ export function detectActiveProduction(
  *
  * @example
  * hasAliases({ id: "x", created_on: "...", environment: "preview", aliases: ["staging.example.com"] })
- * // → true
+ * // -> true
  *
  * hasAliases({ id: "y", created_on: "...", environment: "production" })
- * // → false
+ * // -> false
  */
 export function hasAliases(d: Deployment): boolean {
   return Array.isArray(d.aliases) && d.aliases.length > 0;

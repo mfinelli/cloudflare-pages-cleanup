@@ -20,7 +20,7 @@ import { Deployment, Environment, SelectionBucket } from "./types";
  * Selects deployments to **keep** or **delete** for a single environment.
  *
  * Pipeline (in order):
- *  1) Filters `deployments` to the given `env` and sorts by `created_on` (newest → oldest).
+ *  1) Filters `deployments` to the given `env` and sorts by `created_on` (newest -> oldest).
  *  2) **Protections**:
  *     - If `env === "production"` and `activeProdId` is provided, that ID is always kept and
  *       recorded in `skippedProtectedIds`.
@@ -48,7 +48,7 @@ import { Deployment, Environment, SelectionBucket } from "./types";
  *   epoch-ms comparisons against `olderThanMs`.
  * - If branch metadata is missing on a preview deployment, it is treated as a normal candidate
  *   (i.e., not marked undeletable).
- * - The sort is newest → oldest; ties follow the engine’s stable sort (typical in modern Node).
+ * - The sort is newest -> oldest; ties follow the engine’s stable sort (typical in modern Node).
  * - The returned ID sets are disjoint by construction.
  *
  * @param params.env - Target environment: `"production"` or `"preview"`.
