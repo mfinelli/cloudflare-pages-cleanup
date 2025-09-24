@@ -5,12 +5,15 @@
   "private": true,
   "main": "lib/index.js",
   "scripts": {
-    "all": "pnpm run lint && pnpm run test && pnpm run build && pnpm run package",
+    "all": "pnpm run check && pnpm run test && pnpm run build && pnpm run package",
     "build": "tsc",
-    "fix": "prettier --write **/*.{ts,json,md}",
-    "lint": "prettier --check **/*.{ts,json,md}",
-    "package": "ncc build --license licenses.txt",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "pnpm run fmt:check && pnpm run lint:check",
+    "fmt:fix": "prettier --write .",
+    "fmt:check": "prettier --check .",
+    "lint:fix": "eslint --fix",
+    "lint:check": "eslint",
+    "package": "ncc build --license licenses.txt --minify",
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -25,8 +28,21 @@
     "url": "https://github.com/mfinelli/cloudflare-pages-cleanup/issues"
   },
   "homepage": "https://github.com/mfinelli/cloudflare-pages-cleanup#readme",
+  "dependencies": {
+    "@actions/artifact": "^2.3.2",
+    "@actions/core": "^1.11.1",
+    "cloudflare": "^5.1.0"
+  },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^24.5.2",
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^9.36.0",
+    "globals": "^16.4.0",
+    "jiti": "^2.5.1",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.0",
+    "vitest": "^3.2.4"
   }
 }
