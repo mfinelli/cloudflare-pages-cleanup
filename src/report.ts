@@ -18,6 +18,7 @@ import * as fs from "node:fs";
 import * as core from "@actions/core";
 import { DefaultArtifactClient } from "@actions/artifact";
 import { Report, SelectionBucket } from "./types";
+import { errorMessage } from "./utils";
 
 /**
  * Initializes a fresh {@link Report} object from required base fields.
@@ -158,7 +159,8 @@ export async function writeAndUploadReport(
       `Uploaded artifact '${artifactName}' (id: ${id}, bytes: ${size})`,
     );
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    core.warning(`Failed to upload artifact '${artifactName}': ${msg}`);
+    core.warning(
+      `Failed to upload artifact '${artifactName}': ${errorMessage(err)}`,
+    );
   }
 }

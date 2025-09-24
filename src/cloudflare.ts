@@ -18,6 +18,7 @@ import "cloudflare/shims/web";
 import Cloudflare from "cloudflare";
 import * as core from "@actions/core";
 import { Deployment, Environment } from "./types";
+import { errorMessage } from "./utils";
 
 /**
  * @internal
@@ -476,7 +477,7 @@ export async function getCanonicalProductionDeploymentId(params: {
   } catch (e) {
     // Non-fatal: let caller decide how to handle fallback.
     core.info(
-      `getCanonicalProductionDeploymentId: falling back (reason: ${e instanceof Error ? e.message : String(e)})`,
+      `getCanonicalProductionDeploymentId: falling back (reason: ${errorMessage(e)})`,
     );
     return undefined;
   }

@@ -17,6 +17,7 @@
 import * as core from "@actions/core";
 import { getInputs, daysAgoUtc } from "./utils";
 import {
+  errorMessage,
   deleteDeployment,
   detectActiveProduction,
   getCanonicalProductionDeploymentId,
@@ -244,6 +245,5 @@ async function run(): Promise<void> {
 
 run().catch((err) => {
   // Ensure a clean failure with message
-  const msg = err instanceof Error ? err.message : String(err);
-  core.setFailed(msg);
+  core.setFailed(errorMessage(err));
 });
