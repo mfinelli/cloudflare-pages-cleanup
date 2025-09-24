@@ -12,7 +12,7 @@
     "fmt:check": "prettier --check .",
     "lint:fix": "eslint --fix",
     "lint:check": "eslint",
-    "package": "ncc build --license licenses.txt",
+    "package": "ncc build --license licenses.txt --minify",
     "test": "vitest run"
   },
   "repository": {
