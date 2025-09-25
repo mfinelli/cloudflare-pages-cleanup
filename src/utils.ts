@@ -210,6 +210,11 @@ export function getInputs(): Inputs {
     50,
   );
   const failOnError = parseBool(core.getInput("fail_on_error"), true);
+  const emitReportArtifact = parseBool(
+    core.getInput("emit_report_artifact"),
+    true,
+  );
+  const emitStepSummary = parseBool(core.getInput("emit_step_summary"), true);
 
   if (minToKeep < 0 || maxToKeep < 0 || maxDeletesPerRun < 0) {
     throw new Error("minToKeep, maxToKeep, maxDeletesPerRun must be >= 0");
@@ -238,5 +243,7 @@ export function getInputs(): Inputs {
     dryRun,
     maxDeletesPerRun,
     failOnError,
+    emitReportArtifact,
+    emitStepSummary,
   };
 }

@@ -224,9 +224,21 @@ async function run(): Promise<void> {
   const job = process.env.GITHUB_JOB ?? "job";
   const artifactName = `cloudflare-pages-cleanup-report-${inputs.project}-${inputs.environment}-${runId}-${attempt}-${job}`;
 
-  // Always write/upload report and step summary
-  await writeAndUploadReport(report, artifactName);
-  await writeStepSummary(report);
+  // Conditionally emit report.json artifact
+  if (inputs.emitReportArtifact) {
+    await writeAndUploadReport(report, artifactName);
+  } else {
+    core.info(
+      "emitReportArtifact=false -> skipping report.json artifact upload",
+    );
+  }
+
+  // Conditionally write step summary
+  if (inputs.emitStepSummary) {
+    await writeStepSummary(report);
+  } else {
+    core.info("emitStepSummary=false -> skipping GitHub Step Summary");
+  }
 
   // Fail if any errors and policy says so
   if (report.summary.errors > 0) {

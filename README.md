@@ -19,6 +19,8 @@ artifact.
 | `dry_run`                              | Boolean                                | If `true`, no deletions—just report what would be deleted                                                                     | `false` |
 | `max-deletes-per-run`                  | Integer (>= 0)                         | Safety valve: maximum number of deletions to perform in a single run                                                          | `50`    |
 | `fail_on_error`                        | Boolean                                | If `true`, any deletion error causes the job to fail (after reporting)                                                        | `true`  |
+| `emit_report_artifact`                 | Boolean                                | Upload `report.json` as an artifact                                                                                           | `true`  |
+| `emit_step_summary`                    | Boolean                                | Write a GitHub Step Summary                                                                                                   | `true`  |
 
 > [!IMPORTANT]
 >
@@ -46,6 +48,12 @@ always true:
 | `deletedCount`    | Integer | Number of deployments deleted in this run                                     |
 | `keptCount`       | Integer | Number of deployments kept (includes protected and within retention)          |
 | `deletedIds`      | String  | Comma-separated list of deleted deployment IDs                                |
+
+> [!NOTE]
+>
+> When `emit_report_artifact` is `false`, the action won't upload the artifact;
+> when `emit_step_summary` is `false`, it won't write the summary. Selection,
+> deletions, and outputs are unaffected.
 
 ## Example Usage
 

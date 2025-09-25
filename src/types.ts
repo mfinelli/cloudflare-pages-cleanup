@@ -44,6 +44,10 @@ export interface Inputs {
   maxDeletesPerRun: number;
   /** Any delete error fails the job when true. @defaultValue true */
   failOnError: boolean;
+  /** If true, upload report.json as an artifact */
+  emitReportArtifact: boolean;
+  /** If true, write a GitHub step summary */
+  emitStepSummary: boolean;
 }
 
 /** Minimal deployment shape used by selection logic.

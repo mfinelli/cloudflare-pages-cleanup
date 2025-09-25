@@ -149,4 +149,28 @@ describe("getInputs", () => {
     });
     expect(() => getInputs()).toThrow(/Expected integer, got '3\.14'/);
   });
+
+  it("defaults emitReportArtifact and emitStepSummary to true", () => {
+    setInputs({
+      cloudflare_account_id: "acc",
+      cloudflare_api_token: "tok",
+      project: "proj",
+    });
+    const got = getInputs();
+    expect(got.emitReportArtifact).toBe(true);
+    expect(got.emitStepSummary).toBe(true);
+  });
+
+  it("parses emitReportArtifact/emitStepSummary when provided", () => {
+    setInputs({
+      cloudflare_account_id: "acc",
+      cloudflare_api_token: "tok",
+      project: "proj",
+      emit_report_artifact: "false",
+      emit_step_summary: "false",
+    });
+    const got = getInputs();
+    expect(got.emitReportArtifact).toBe(false);
+    expect(got.emitStepSummary).toBe(false);
+  });
 });

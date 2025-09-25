@@ -43,6 +43,14 @@ inputs:
     description: If true, any deletion failure will fail the job
     default: true
     required: false
+  emit_report_artifact:
+    description: If true, upload report.json as an artifact
+    required: false
+    default: true
+  emit_step_summary:
+    description: If true, write a GitHub step summary
+    required: false
+    default: true
 outputs:
   consideredCount:
     description: Total deployments considered (after protections)
